@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback - GlowSkin Clinic</title>
+</head>
+<body style="margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;line-height:1.6;color:#2c3e50;background:linear-gradient(135deg,#f8bbd9,#e91e63);min-height:100vh;">
+    
+    <nav style="background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);padding:1rem 5%;position:fixed;width:100%;top:0;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
+        <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-size:1.8rem;font-weight:bold;color:#e91e63;">GlowSkin Clinic</div>
+            <ul style="display:flex;list-style:none;gap:2rem;">
+                <li><a href="index.html" style="text-decoration:none;color:#2c3e50;font-weight:500;">Home</a></li>
+                <li><a href="services.html" style="text-decoration:none;color:#2c3e50;font-weight:500;">Services</a></li>
+                <li><a href="products.html" style="text-decoration:none;color:#2c3e50;font-weight:500;">Products</a></li>
+                <li><a href="cart.html" style="text-decoration:none;color:#2c3e50;font-weight:500;">Cart</a></li>
+                <li><a href="feedback.html" style="text-decoration:none;color:#e91e63;font-weight:700;">Feedback</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section style="padding:140px 5% 80px;max-width:600px;margin:0 auto;">
+        <h2 style="text-align:center;font-size:2.5rem;margin-bottom:3rem;color:#2c3e50;">Share Your Experience</h2>
+        <form id="feedbackForm" style="background:white;padding:2rem;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+                <div style="margin-bottom:1.5rem;">
+                    <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Name *</label>
+                    <input type="text" id="fbName" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+                </div>
+                <div style="margin-bottom:1.5rem;">
+                    <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Mobile Number *</label>
+                    <input type="tel" id="fbMobile" placeholder="10-digit number" pattern="[0-9]{10}" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+                </div>
+                <div style="margin-bottom:1.5rem;">
+                    <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Email</label>
+                    <input type="email" id="fbEmail" style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+                </div>
+                <div style="margin-bottom:1.5rem;">
+                    <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Service *</label>
+                    <input type="text" id="fbService" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+                </div>
+            </div>
+            <div style="margin-bottom:1.5rem;">
+                <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Rating (1-5) *</label>
+                <input type="number" id="fbRating" min="1" max="5" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+            </div>
+            <div style="margin-bottom:1.5rem;">
+                <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Feedback *</label>
+                <textarea id="fbFeedback" rows="5" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-family:inherit;resize:vertical;"></textarea>
+            </div>
+            <button type="submit" style="background:#e91e63;color:white;border:none;padding:15px 40px;border-radius:50px;font-size:1.1rem;cursor:pointer;display:block;margin:0 auto;width:100%;">Submit & Download CSV</button>
+        </form>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

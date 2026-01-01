@@ -1,0 +1,26 @@
+/* EXTERNAL CSS - Services & Products Pages */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+:root { --primary: #e91e63; --secondary: #f8bbd9; --dark: #2c3e50; --light: #ecf0f1; --white: #ffffff; --shadow: 0 10px 30px rgba(0,0,0,0.1); }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: var(--dark); }
+
+nav { background: var(--white); padding: 1rem 5%; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: var(--shadow); }
+.nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-size: 1.8rem; font-weight: bold; color: var(--primary); }
+.nav-links { display: flex; list-style: none; gap: 2rem; }
+.nav-links a { text-decoration: none; color: var(--dark); font-weight: 500; transition: color 0.3s; }
+.nav-links a:hover { color: var(--primary); }
+
+.services-hero, .products-hero { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--white); padding: 140px 5% 60px; text-align: center; }
+.services-hero h1, .products-hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+
+.services-section, .products-section { padding: 80px 5%; max-width: 1200px; margin: 0 auto; }
+.services-grid, .products-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+
+.service-card, .product-card { background: var(--white); border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); transition: all 0.3s; cursor: pointer; }
+.service-card:hover, .product-card:hover { transform: translateY(-10px); }
+.service-image, .product-image { width: 100%; height: 250px; object-fit: cover; }
+
+.service-card div, .product-info { padding: 1.5rem; text-align: center; }
+.service-card h3 { color: var(--primary); margin-bottom: 1rem; }
+
+@media (max-width: 768px) { .nav-links { display: none; } }

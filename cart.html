@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - GlowSkin Clinic</title>
+    <style>
+        /* Inline CSS for Cart - Fixed Display */
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;line-height:1.6;color:#2c3e50;background:#f8f9fa}
+        nav{background:white;padding:1rem 5%;position:fixed;width:100%;top:0;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
+        .nav-container{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+        .logo{font-size:1.8rem;font-weight:bold;color:#e91e63}
+        .nav-links{display:flex;list-style:none;gap:2rem}
+        .nav-links a{text-decoration:none;color:#2c3e50;font-weight:500}
+        .nav-links a:hover{color:#e91e63}
+        
+        .cart-hero{background:linear-gradient(135deg,#e91e63,#f8bbd9);color:white;padding:140px 5% 60px;text-align:center}
+        .cart-hero h1{font-size:2.5rem;margin-bottom:1rem}
+        
+        .cart-section{padding:80px 5%;max-width:1200px;margin:0 auto}
+        .cart-container{background:white;border-radius:20px;padding:2rem;box-shadow:0 10px 30px rgba(0,0,0,0.1)}
+        .cart-items{max-height:500px;overflow-y:auto;margin-bottom:2rem}
+        .cart-item{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 0;border-bottom:1px solid #ecf0f1}
+        .cart-item:last-child{border-bottom:none}
+        .item-info{display:flex;align-items:center;flex:1}
+        .item-image{width:60px;height:60px;object-fit:cover;border-radius:10px;margin-right:1rem}
+        .item-details{flex:1}
+        .item-name{font-weight:600;margin-bottom:0.25rem}
+        .item-qty{color:#666;font-size:0.9rem}
+        .item-price{font-size:1.5rem;font-weight:bold;color:#e91e63}
+        .cart-total{font-size:1.8rem;font-weight:bold;text-align:right;margin:2rem 0;color:#e91e63}
+        .checkout-btn{display:block;width:100%;background:#4caf50;color:white;border:none;padding:18px;border-radius:12px;font-size:1.2rem;font-weight:bold;cursor:pointer;margin-top:1rem;transition:all 0.3s}
+        .checkout-btn:hover{background:#45a049;transform:translateY(-2px);box-shadow:0 5px 15px rgba(76,175,80,0.4)}
+        .empty-cart{text-align:center;padding:3rem;color:#666;font-size:1.1rem}
+        .cart-tabs{display:flex;gap:1rem;margin-bottom:1rem;border-bottom:2px solid #ecf0f1;padding-bottom:1rem}
+        .tab-btn{padding:0.5rem 1rem;border:none;background:none;cursor:pointer;font-weight:500;color:#666;transition:color 0.3s}
+        .tab-btn.active{color:#e91e63;border-bottom:3px solid #e91e63;font-weight:600}
+        @media(max-width:768px){.cart-item{flex-direction:column;gap:1rem;text-align:center}}
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">GlowSkin Clinic</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="cart-hero">
+        <h1>Your Shopping Cart</h1>
+        <p>Products + Services • Cash on Delivery</p>
+    </section>
+
+    <section class="cart-section">
+        <div class="cart-container">
+            <!-- Tabs for Products/Services -->
+            <div class="cart-tabs">
+                <button class="tab-btn active" onclick="showTab('all')">All Items (0)</button>
+                <button class="tab-btn" onclick="showTab('products')">Products (0)</button>
+                <button class="tab-btn" onclick="showTab('services')">Services (0)</button>
+            </div>
+
+            <div id="cartItems" class="cart-items"></div>
+            
+            <div id="cartTotal" class="cart-total">Total: ₹0</div>
+            <div id="checkoutSection" style="display:none;">
+                <form id="checkoutForm">
+                    <div style="margin-bottom:1.5rem;">
+                        <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Full Name</label>
+                        <input type="text" id="customerName" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+                    </div>
+                    <div style="margin-bottom:1.5rem;">
+                        <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Phone</label>
+                        <input type="tel" id="phone" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+                    </div>
+                    <div style="margin-bottom:1.5rem;">
+                        <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Address</label>
+                        <textarea id="address" rows="3" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;"></textarea>
+                    </div>
+                    <button type="submit" class="checkout-btn" id="checkoutBtn">Confirm COD Order</button>
+                </form>
+            </div>
+            
+            <div id="emptyCart" class="empty-cart" style="display:none;">
+                <p>Your cart is empty 😊</p>
+                <a href="products.html" style="color:#e91e63;font-weight:500;">Continue Shopping →</a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Load carts from LocalStorage
+        let productCart = JSON.parse(localStorage.getItem('skinClinicCart')) || [];
+        let serviceCart = JSON.parse(localStorage.getItem('skinClinicServices')) || [];
+        let currentTab = 'all';
+
+        // Initialize Cart Display
+        function initCart() {
+            updateCartDisplay();
+            setupEventListeners();
+        }
+
+        // Update Cart Display with Tabs
+        function updateCartDisplay() {
+            const allItems = [...productCart, ...serviceCart];
+            const productsOnly = productCart;
+            const servicesOnly = serviceCart;
+            
+            const itemsToShow = currentTab === 'products' ? productsOnly : 
+                               currentTab === 'services' ? servicesOnly : allItems;
+            
+            const container = document.getElementById('cartItems');
+            const totalEl = document.getElementById('cartTotal');
+            const checkoutSection = document.getElementById('checkoutSection');
+            const emptyCart = document.getElementById('emptyCart');
+            const countEl = document.querySelector('.tab-btn:first-child');
+            
+            if (itemsToShow.length === 0) {
+                container.innerHTML = '';
+                totalEl.textContent = 'Total: ₹0';
+                checkoutSection.style.display = 'none';
+                emptyCart.style.display = 'block';
+                if (countEl) countEl.textContent = `All Items (0)`;
+                return;
+            }
+            
+            emptyCart.style.display = 'none';
+            checkoutSection.style.display = 'block';
+            
+            container.innerHTML = itemsToShow.map(item => `
+                <div class="cart-item">
+                    <div class="item-info">
+                        <img src="${item.image}" alt="${item.name}" class="item-image">
+                        <div class="item-details">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-qty">${item.quantity} ${item.id < 10 ? 'sessions' : 'items'}</div>
+                        </div>
+                    </div>
+                    <div class="item-price">₹${(item.price * item.quantity).toLocaleString()}</div>
+                </div>
+            `).join('');
+
+            const totalPrice = itemsToShow.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            totalEl.textContent = `Total: ₹${totalPrice.toLocaleString()}`;
+            
+            // Update tab counts
+            document.querySelector('.tab-btn:nth-child(1)').textContent = `All Items (${allItems.reduce((sum,item)=>sum+item.quantity,0)})`;
+            document.querySelector('.tab-btn:nth-child(2)').textContent = `Products (${productCart.reduce((sum,item)=>sum+item.quantity,0)})`;
+            document.querySelector('.tab-btn:nth-child(3)').textContent = `Services (${serviceCart.reduce((sum,item)=>sum+item.quantity,0)})`;
+        }
+
+        // Tab Switching
+        function showTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updateCartDisplay();
+        }
+
+        // Checkout Form
+        function setupEventListeners() {
+            const checkoutForm = document.getElementById('checkoutForm');
+            if (checkoutForm) {
+                checkoutForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get order details
+                    const orderData = {
+                        name: document.getElementById('customerName').value,
+                        phone: document.getElementById('phone').value,
+                        address: document.getElementById('address').value,
+                        products: productCart,
+                        services: serviceCart,
+                        total: productCart.reduce((sum,item)=>sum+(item.price*item.quantity),0) + serviceCart.reduce((sum,item)=>sum+(item.price*item.quantity),0),
+                        date: new Date().toLocaleString('en-IN')
+                    };
+                    
+                    // Save order
+                    let orders = JSON.parse(localStorage.getItem('skinClinicOrders')) || [];
+                    orders.push(orderData);
+                    localStorage.setItem('skinClinicOrders', JSON.stringify(orders));
+                    
+                    alert('✅ Order Confirmed! Cash on Delivery.\nTeam will call you within 24 hours.');
+                    
+                    // Clear carts
+                    productCart = []; serviceCart = [];
+                    localStorage.setItem('skinClinicCart', '[]');
+                    localStorage.setItem('skinClinicServices', '[]');
+                    checkoutForm.reset();
+                    updateCartDisplay();
+                });
+            }
+        }
+
+        // Initialize when page loads
+        initCart();
+    </script>
+</body>
+</html>
