@@ -7,6 +7,7 @@
 </head>
 <body style="margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;line-height:1.6;color:#2c3e50;background:linear-gradient(135deg,#f8bbd9,#e91e63);min-height:100vh;">
     
+    <!-- Navigation -->
     <nav style="background:rgba(255,255,255,0.95);backdrop-filter:blur(10px);padding:1rem 5%;position:fixed;width:100%;top:0;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,0.1);">
         <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;">
             <div style="font-size:1.8rem;font-weight:bold;color:#e91e63;">GlowSkin Clinic</div>
@@ -20,39 +21,149 @@
         </div>
     </nav>
 
+    <!-- Main Content -->
     <section style="padding:140px 5% 80px;max-width:600px;margin:0 auto;">
         <h2 style="text-align:center;font-size:2.5rem;margin-bottom:3rem;color:#2c3e50;">Share Your Experience</h2>
-        <form id="feedbackForm" style="background:white;padding:2rem;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1);">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
-                <div style="margin-bottom:1.5rem;">
-                    <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Name *</label>
-                    <input type="text" id="fbName" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
-                </div>
-                <div style="margin-bottom:1.5rem;">
-                    <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Mobile Number *</label>
-                    <input type="tel" id="fbMobile" placeholder="10-digit number" pattern="[0-9]{10}" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
-                </div>
-                <div style="margin-bottom:1.5rem;">
-                    <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Email</label>
-                    <input type="email" id="fbEmail" style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
-                </div>
-                <div style="margin-bottom:1.5rem;">
-                    <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Service *</label>
-                    <input type="text" id="fbService" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
-                </div>
+        
+        <!-- VALIDATED FEEDBACK FORM -->
+        <form id="feedbackForm" style="background:white;padding:2.5rem;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,0.1);">
+            <div style="margin-bottom:1.5rem;">
+                <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Full Name *</label>
+                <input type="text" id="fbName" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+                <span id="nameError" class="error" style="color:#e74c3c;font-size:0.85rem;margin-top:4px;display:block;"></span>
             </div>
+            
+            <div style="margin-bottom:1.5rem;">
+                <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Mobile Number *</label>
+                <input type="tel" id="fbMobile" placeholder="10-digit number" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+                <span id="mobileError" class="error" style="color:#e74c3c;font-size:0.85rem;margin-top:4px;display:block;"></span>
+            </div>
+            
+            <div style="margin-bottom:1.5rem;">
+                <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Email (optional)</label>
+                <input type="email" id="fbEmail" style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+                <span id="emailError" class="error" style="color:#e74c3c;font-size:0.85rem;margin-top:4px;display:block;"></span>
+            </div>
+            
+            <div style="margin-bottom:1.5rem;">
+                <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Service *</label>
+                <input type="text" id="fbService" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+                <span id="serviceError" class="error" style="color:#e74c3c;font-size:0.85rem;margin-top:4px;display:block;"></span>
+            </div>
+            
             <div style="margin-bottom:1.5rem;">
                 <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Rating (1-5) *</label>
                 <input type="number" id="fbRating" min="1" max="5" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+                <span id="ratingError" class="error" style="color:#e74c3c;font-size:0.85rem;margin-top:4px;display:block;"></span>
             </div>
+            
             <div style="margin-bottom:1.5rem;">
                 <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Feedback *</label>
                 <textarea id="fbFeedback" rows="5" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-family:inherit;resize:vertical;"></textarea>
+                <span id="feedbackError" class="error" style="color:#e74c3c;font-size:0.85rem;margin-top:4px;display:block;"></span>
             </div>
+            
             <button type="submit" style="background:#e91e63;color:white;border:none;padding:15px 40px;border-radius:50px;font-size:1.1rem;cursor:pointer;display:block;margin:0 auto;width:100%;">Submit & Download CSV</button>
         </form>
     </section>
 
-    <script src="script.js"></script>
+    <!-- COMPLETE VALIDATION + CSV SCRIPT -->
+    <script>
+        document.getElementById('feedbackForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Clear previous errors
+            document.querySelectorAll('.error').forEach(span => span.textContent = '');
+            let isValid = true;
+            
+            // Name validation
+            const name = document.getElementById('fbName').value.trim();
+            if (name.length < 2) {
+                document.getElementById('nameError').textContent = 'Name must be at least 2 characters';
+                isValid = false;
+            }
+            
+            // Mobile validation (10 digits only)
+            const mobile = document.getElementById('fbMobile').value.replace(/\D/g, '');
+            if (mobile.length !== 10) {
+                document.getElementById('mobileError').textContent = 'Enter valid 10-digit mobile number';
+                isValid = false;
+            }
+            
+            // Email validation (optional)
+            const email = document.getElementById('fbEmail').value.trim();
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                document.getElementById('emailError').textContent = 'Enter valid email address';
+                isValid = false;
+            }
+            
+            // Service validation
+            const service = document.getElementById('fbService').value.trim();
+            if (service.length < 2) {
+                document.getElementById('serviceError').textContent = 'Please enter service name';
+                isValid = false;
+            }
+            
+            // Rating validation
+            const rating = parseInt(document.getElementById('fbRating').value);
+            if (isNaN(rating) || rating < 1 || rating > 5) {
+                document.getElementById('ratingError').textContent = 'Rating must be between 1-5';
+                isValid = false;
+            }
+            
+            // Feedback validation
+            const feedback = document.getElementById('fbFeedback').value.trim();
+            if (feedback.length < 10) {
+                document.getElementById('feedbackError').textContent = 'Feedback must be at least 10 characters';
+                isValid = false;
+            }
+            
+            // If all valid, save & CSV export
+            if (isValid) {
+                const feedbackData = {
+                    name: name,
+                    mobile: mobile,
+                    email: email,
+                    service: service,
+                    rating: rating,
+                    feedback: feedback,
+                    date: new Date().toLocaleString('en-IN')
+                };
+                
+                // Save to LocalStorage
+                let feedbacks = JSON.parse(localStorage.getItem('skinClinicFeedbacks')) || [];
+                feedbacks.push(feedbackData);
+                localStorage.setItem('skinClinicFeedbacks', JSON.stringify(feedbacks));
+                
+                // CSV Export
+                const csvHeaders = ['Name','Mobile','Email','Service','Rating','Feedback','Date'];
+                const csvRow = [
+                    `"${name.replace(/"/g,'""')}"`,
+                    mobile,
+                    email || '',
+                    `"${service.replace(/"/g,'""')}"`,
+                    rating,
+                    `"${feedback.replace(/"/g,'""')}"`,
+                    feedbackData.date
+                ];
+                
+                const csvContent = [csvHeaders.join(','), csvRow.join(',')].join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `GlowSkin_Feedback_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                alert('✅ Thank you! Feedback saved & CSV downloaded.');
+                this.reset();
+            }
+        });
+    </script>
 </body>
 </html>
+
+
+    
+            
