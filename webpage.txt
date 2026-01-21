@@ -1,0 +1,164 @@
+5. //Example on any page (e.g., index.html)
+//Place this inside <body>, wherever you want the button and the section:
+<button id="toggleAboutBtn" onclick="toggleSection()">Hide About Section</button>
+
+<section id="aboutSection">
+    <h2>About GlowSkin Clinic</h2>
+    <p>We provide advanced skin treatments with expert dermatologists.</p>
+</section>
+//Add this before the closing </body> tag (or into script.js):
+<script>
+function toggleSection() {
+    const section = document.getElementById('aboutSection');
+    const btn = document.getElementById('toggleAboutBtn');
+
+    if (section.style.display === 'none') {
+        section.style.display = 'block';
+        btn.textContent = 'Hide About Section';
+    } else {
+        section.style.display = 'none';
+        btn.textContent = 'Show About Section';
+    }
+}
+</script>
+6. //Example: update your cart total calculation
+Suppose you already have something like this in your cart script:
+const allItems = [...productCart, ...serviceCart];
+
+const totalPrice = allItems.reduce((sum, item) => {
+    return sum + (item.price * item.quantity);
+}, 0);
+
+// OLD:
+cartTotal.textContent = `Total: ₹${totalPrice.toLocaleString()}`;
+
+//Change it to:
+const allItems = [...productCart, ...serviceCart];
+
+let totalPrice = allItems.reduce((sum, item) => {
+    return sum + (item.price * item.quantity);
+}, 0);
+
+// Apply 10% discount if total > 1000
+let discount = 0;
+if (totalPrice > 1000) {
+    discount = totalPrice * 0.10;
+}
+const finalTotal = totalPrice - discount;
+
+// Update UI
+const cartTotal = document.getElementById('cartTotal');
+const discountLine = document.getElementById('discountLine');
+
+if (discountLine) {
+    if (discount > 0) {
+        discountLine.textContent = `Discount (10%): -₹${discount.toFixed(0)}`;
+        discountLine.style.display = 'block';
+    } else {
+        discountLine.textContent = '';
+        discountLine.style.display = 'none';
+    }
+}
+
+cartTotal.textContent = `Total: ₹${finalTotal.toLocaleString()}`;
+//Example HTML to show discount line
+Inside your cart section (e.g. in cart.html), add a line above the total:
+<div id="discountLine" style="text-align:right;color:#4caf50;display:none;"></div>
+<div id="cartTotal" class="cart-total">Total: ₹0</div>
+
+8. //HTML: New section in index.html
+Place this inside <body> of index.html, below your hero or features section:
+<section id="christmas-offers" class="christmas-offers">
+    <h2>🎄 Christmas & New Year Special Offers 🎆</h2>
+    <p class="offers-intro">
+        Celebrate this festive season with glowing skin! Enjoy limited-time discounts on our most popular treatments and products.
+    </p>
+    <div class="offers-grid">
+        <div class="offer-card">
+            <h3>Festive Glow Facial</h3>
+            <p>Get 20% off on HydraFacial sessions booked before 31st December.</p>
+        </div>
+        <div class="offer-card">
+            <h3>Party-Ready Skin Combo</h3>
+            <p>Flat 15% off on Vitamin C Serum + Sunscreen SPF 50 combo.</p>
+        </div>
+        <div class="offer-card">
+            <h3>New Year Detox Package</h3>
+            <p>Book Acne Treatment + Face Wash kit at a special bundled price.</p>
+        </div>
+    </div>
+    <p class="offers-note">
+        *Offers valid for a limited period only. Visit our clinic or contact us to book your festive slot.
+    </p>
+</section>
+//Internal CSS: Add styles in <head> of the same page
+In the same index.html, inside the existing <style> tag (or create one if missing) in <head>, add this CSS:
+<style>
+/* Christmas / New Year Offers Section */
+.christmas-offers {
+    padding: 80px 5%;
+    max-width: 1200px;
+    margin: 0 auto 60px auto;
+    background: linear-gradient(135deg, #f8bbd9 0%, #ffffff 40%, #e3f2fd 100%);
+    border-radius: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.christmas-offers h2 {
+    font-size: 2.4rem;
+    margin-bottom: 1rem;
+    color: #e91e63;
+}
+
+.christmas-offers .offers-intro {
+    font-size: 1.1rem;
+    margin-bottom: 2.5rem;
+    color: #2c3e50;
+}
+
+.offers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.8rem;
+    margin-bottom: 2rem;
+}
+
+.offer-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 1.5rem 1.8rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    border: 1px solid rgba(233, 30, 99, 0.08);
+    text-align: left;
+}
+
+.offer-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.6rem;
+    color: #c2185b;
+}
+
+.offer-card p {
+    font-size: 0.98rem;
+    color: #455a64;
+}
+
+.christmas-offers .offers-note {
+    font-size: 0.9rem;
+    color: #607d8b;
+    font-style: italic;
+}
+
+/* Simple responsive tweak */
+@media (max-width: 600px) {
+    .christmas-offers {
+        padding: 60px 6%;
+    }
+    
+    .christmas-offers h2 {
+        font-size: 2rem;
+    }
+}
+</style>
+
