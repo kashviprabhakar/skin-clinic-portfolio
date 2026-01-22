@@ -1,10 +1,10 @@
 // GlowSkin Clinic - Multi-Page Complete Script
-// Supports Products + Services carts with LocalStorage sync [web:1][web:12][web:18][web:19][web:21]
+// Supports Products + Services carts with LocalStorage sync
 
 let productCart = JSON.parse(localStorage.getItem('skinClinicCart')) || [];
 let serviceCart = JSON.parse(localStorage.getItem('skinClinicServices')) || [];
 
-// DOM Elements (for cart.html and feedback.html)
+// DOM Elements (for cart.html and other pages)
 const cartItems = document.getElementById('cartItems');
 const cartCount = document.getElementById('cartCount');
 const cartTotal = document.getElementById('cartTotal');
@@ -12,6 +12,18 @@ const checkoutBtn = document.getElementById('checkoutBtn');
 const checkoutSection = document.getElementById('checkout');
 const checkoutForm = document.getElementById('checkoutForm');
 const feedbackForm = document.getElementById('feedbackForm');
+
+// --- GST support ---
+const GST_RATE = 0.18; // 18% GST — change to required rate
+
+function calculateTotals() {
+    const subtotal = productCart.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0)
+        + serviceCart.reduce((sum, item) => sum + (Number(item.price) * Number(item.quantity)), 0);
+    const gst = Math.round((subtotal * GST_RATE) * 100) / 100; // two decimal rounding
+    const total = Math.round((subtotal + gst) * 100) / 100;
+    return { subtotal, gst, total };
+}
+// --- end GST support ---
 
 // Initialize on pages that need it
 document.addEventListener('DOMContentLoaded', function() {
@@ -25,38 +37,128 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// COMBINED CART - Products + Services
+// Update combined cart (items + totals)
 function updateCombinedCart() {
-    const allItems = [...productCart, ...serviceCart];
-    
-    if (cartItems) {
-        cartItems.innerHTML = allItems.length ? allItems.map(item => `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0;border-bottom:1px solid #ecf0f1;">
-                <div style="display:flex;align-items:center;">
-                    <img src="${item.image}" alt="${item.name}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;margin-right:1rem;">
-                    <div>
-                        <div style="font-weight:500;">${item.name}</div>
-                        <small style="color:#666;">x${item.quantity}</small>
-                    </div>
-                </div>
-                <div style="text-align:right;">
-                    <strong style="color:#e91e63;">₹${(item.price * item.quantity).toLocaleString()}</strong>
-                </div>
-            </div>
-        `).join('') : '<p style="text-align:center;color:#666;padding:2rem;">Your cart is empty</p>';
-    }
-
-    const totalItems = allItems.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPrice = allItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    if (cartCount) cartCount.textContent = totalItems;
-    if (cartTotal) cartTotal.textContent = `Total: ₹${totalPrice.toLocaleString()}`;
-    
-    if (checkoutBtn) checkoutBtn.style.display = totalItems > 0 ? 'block' : 'none';
-    if (checkoutSection) checkoutSection.style.display = totalItems > 0 ? 'block' : 'none';
+    renderCartItems();
+    renderCartTotals();
 }
 
-// Cart Event Listeners
+// Render cart items (products + services) into #cartItems
+function renderCartItems() {
+    if (!cartItems) return;
+    if (productCart.length === 0 && serviceCart.length === 0) {
+        cartItems.innerHTML = `<div class="empty-cart">Your cart is empty. Browse products and services to add items.</div>`;
+        return;
+    }
+
+    let html = '';
+    if (productCart.length) {
+        html += '<h3>Products</h3>';
+        productCart.forEach((item, idx) => {
+            html += `
+            <div class="cart-item" data-type="product" data-id="${item.id}">
+                <div class="cart-item-info">
+                    <strong>${item.name}</strong>
+                    <div>₹${Number(item.price).toFixed(2)} × ${item.quantity} = ₹${(Number(item.price) * Number(item.quantity)).toFixed(2)}</div>
+                </div>
+                <div class="cart-item-actions">
+                    <button class="decrease-qty" data-index="${idx}">-</button>
+                    <span class="qty">${item.quantity}</span>
+                    <button class="increase-qty" data-index="${idx}">+</button>
+                    <button class="remove-item" data-type="product" data-index="${idx}">Remove</button>
+                </div>
+            </div>`;
+        });
+    }
+
+    if (serviceCart.length) {
+        html += '<h3>Services</h3>';
+        serviceCart.forEach((item, idx) => {
+            html += `
+            <div class="cart-item" data-type="service" data-id="${item.id}">
+                <div class="cart-item-info">
+                    <strong>${item.name}</strong>
+                    <div>₹${Number(item.price).toFixed(2)} × ${item.quantity} = ₹${(Number(item.price) * Number(item.quantity)).toFixed(2)}</div>
+                </div>
+                <div class="cart-item-actions">
+                    <button class="decrease-svc-qty" data-index="${idx}">-</button>
+                    <span class="qty">${item.quantity}</span>
+                    <button class="increase-svc-qty" data-index="${idx}">+</button>
+                    <button class="remove-item" data-type="service" data-index="${idx}">Remove</button>
+                </div>
+            </div>`;
+        });
+    }
+
+    cartItems.innerHTML = html;
+
+    // Attach listeners for inline controls
+    cartItems.querySelectorAll('.increase-qty').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const i = Number(e.target.dataset.index);
+            productCart[i].quantity = Number(productCart[i].quantity) + 1;
+            saveCarts();
+            updateCombinedCart();
+        });
+    });
+    cartItems.querySelectorAll('.decrease-qty').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const i = Number(e.target.dataset.index);
+            productCart[i].quantity = Math.max(0, Number(productCart[i].quantity) - 1);
+            if (productCart[i].quantity === 0) productCart.splice(i, 1);
+            saveCarts();
+            updateCombinedCart();
+        });
+    });
+    cartItems.querySelectorAll('.increase-svc-qty').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const i = Number(e.target.dataset.index);
+            serviceCart[i].quantity = Number(serviceCart[i].quantity) + 1;
+            saveCarts();
+            updateCombinedCart();
+        });
+    });
+    cartItems.querySelectorAll('.decrease-svc-qty').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const i = Number(e.target.dataset.index);
+            serviceCart[i].quantity = Math.max(0, Number(serviceCart[i].quantity) - 1);
+            if (serviceCart[i].quantity === 0) serviceCart.splice(i, 1);
+            saveCarts();
+            updateCombinedCart();
+        });
+    });
+    cartItems.querySelectorAll('.remove-item').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const i = Number(e.target.dataset.index);
+            const type = e.target.dataset.type;
+            if (type === 'product') productCart.splice(i, 1);
+            else serviceCart.splice(i, 1);
+            saveCarts();
+            updateCombinedCart();
+        });
+    });
+}
+
+// Render subtotal, GST and total into #cartTotal
+function renderCartTotals() {
+    if (!cartTotal) return;
+    const totals = calculateTotals();
+    cartTotal.innerHTML = `
+        <div>Subtotal: ₹${totals.subtotal.toFixed(2)}</div>
+        <div>GST (${(GST_RATE * 100).toFixed(0)}%): ₹${totals.gst.toFixed(2)}</div>
+        <div class="cart-grand-total"><strong>Total: ₹${totals.total.toFixed(2)}</strong></div>
+    `;
+    const count = productCart.reduce((s, i) => s + Number(i.quantity), 0) + serviceCart.reduce((s, i) => s + Number(i.quantity), 0);
+    if (cartCount) cartCount.textContent = count;
+}
+
+// Save carts to localStorage
+function saveCarts() {
+    localStorage.setItem('skinClinicCart', JSON.stringify(productCart));
+    localStorage.setItem('skinClinicServices', JSON.stringify(serviceCart));
+}
+
+// Setup checkout and some page event listeners
 function setupCartEvents() {
     if (checkoutBtn) {
         checkoutBtn.addEventListener('click', function() {
@@ -67,14 +169,17 @@ function setupCartEvents() {
     if (checkoutForm) {
         checkoutForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            const totals = calculateTotals();
+
             const orderSummary = {
                 name: document.getElementById('customerName')?.value || '',
                 phone: document.getElementById('phone')?.value || '',
                 address: document.getElementById('address')?.value || '',
                 products: productCart,
                 services: serviceCart,
-                total: productCart.reduce((sum, item) => sum + (item.price * item.quantity), 0) +
-                       serviceCart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                subtotal: totals.subtotal,
+                gst: totals.gst,
+                total: totals.total,
                 timestamp: new Date().toLocaleString('en-IN')
             };
             
@@ -82,116 +187,84 @@ function setupCartEvents() {
             let orders = JSON.parse(localStorage.getItem('skinClinicOrders')) || [];
             orders.push(orderSummary);
             localStorage.setItem('skinClinicOrders', JSON.stringify(orders));
-            
+
             alert('Order confirmed! Cash on Delivery. Team will contact you soon.');
             
             // Clear carts
             productCart = [];
             serviceCart = [];
-            localStorage.setItem('skinClinicCart', JSON.stringify(productCart));
-            localStorage.setItem('skinClinicServices', JSON.stringify(serviceCart));
+            saveCarts();
             updateCombinedCart();
             checkoutForm.reset();
         });
     }
 }
 
-// Feedback Form with Mobile Number (feedback.html)
+// Feedback form setup (existing behavior preserved)
 function setupFeedbackForm() {
-    if (feedbackForm) {
-        feedbackForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const feedbackData = {
-                name: document.getElementById('fbName').value,
-                mobile: document.getElementById('fbMobile').value,
-                email: document.getElementById('fbEmail')?.value || '',
-                service: document.getElementById('fbService').value,
-                rating: document.getElementById('fbRating').value,
-                feedback: document.getElementById('fbFeedback').value,
-                date: new Date().toLocaleString('en-IN')
-            };
+    feedbackForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const feedbackData = {
+            name: document.getElementById('fbName').value,
+            mobile: document.getElementById('fbMobile').value,
+            email: document.getElementById('fbEmail')?.value || '',
+            service: document.getElementById('fbService').value,
+            rating: document.getElementById('fbRating').value,
+            feedback: document.getElementById('fbFeedback').value,
+            date: new Date().toLocaleString('en-IN')
+        };
 
-            // Save feedback
-            let feedbacks = JSON.parse(localStorage.getItem('skinClinicFeedbacks')) || [];
-            feedbacks.push(feedbackData);
-            localStorage.setItem('skinClinicFeedbacks', JSON.stringify(feedbacks));
+        // Save feedback
+        let feedbacks = JSON.parse(localStorage.getItem('skinClinicFeedbacks')) || [];
+        feedbacks.push(feedbackData);
+        localStorage.setItem('skinClinicFeedbacks', JSON.stringify(feedbacks));
 
-            // CSV Export (Excel/Notepad ready)
-            const csvHeaders = ['Name', 'Mobile', 'Email', 'Service', 'Rating', 'Feedback', 'Date'];
-            const csvRow = [
-                feedbackData.name,
-                feedbackData.mobile,
-                feedbackData.email,
-                feedbackData.service,
-                feedbackData.rating,
-                `"${feedbackData.feedback.replace(/"/g, '""')}"`,
-                feedbackData.date
-            ];
-            
-            const csvContent = [csvHeaders.join(','), csvRow.join(',')].join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `GlowSkin_Feedback_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            window.URL.revokeObjectURL(url);
+        // CSV Export (Excel/Notepad ready)
+        const csvHeaders = ['Name', 'Mobile', 'Email', 'Service', 'Rating', 'Feedback', 'Date'];
+        const csvRow = [
+            feedbackData.name,
+            feedbackData.mobile,
+            feedbackData.email,
+            feedbackData.service,
+            feedbackData.rating,
+            `"${feedbackData.feedback.replace(/"/g, '""')}"`,
+            feedbackData.date
+        ];
 
-            alert('Thank you! Feedback saved & CSV downloaded.');
-            feedbackForm.reset();
-        });
-    }
+        const csvContent = `${csvHeaders.join(',')}\n${csvRow.join(',')}`;
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `feedback_${Date.now()}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        feedbackForm.reset();
+        alert('Thank you for your feedback!');
+    });
 }
 
-// Global Functions (used by inline onclick in products/services pages)
-window.changeQty = function(id, delta) {
-    const input = document.getElementById(`qty-${id}`);
-    let qty = parseInt(input.value) + delta;
-    input.value = Math.max(0, qty);
-};
-
-window.updateQty = function(id, qty) {
-    document.getElementById(`qty-${id}`).value = Math.max(0, parseInt(qty) || 0);
-};
-
-window.addToCart = function(productId) {
-    const product = window.products?.find(p => p.id === productId); // products defined in products.html
-    const qtyInput = document.getElementById(`qty-${productId}`);
-    const qty = parseInt(qtyInput.value);
-    
-    if (qty > 0 && product) {
-        const existing = productCart.find(item => item.id === productId);
-        if (existing) {
-            existing.quantity += qty;
-        } else {
-            productCart.push({ ...product, quantity: qty });
-        }
-        localStorage.setItem('skinClinicCart', JSON.stringify(productCart));
-        qtyInput.value = 0;
-        event.target.textContent = 'Added!';
-        event.target.style.background = '#4caf50';
-        setTimeout(() => {
-            event.target.textContent = 'Add to Cart';
-            event.target.style.background = '#e91e63';
-        }, 1500);
-    }
-};
-
+// Functions used on products/services pages (unchanged logic, but keep totals updated)
 window.changeServiceQty = function(id, delta) {
     const input = document.getElementById(`service-qty-${id}`);
+    if (!input) return;
     let qty = parseInt(input.value) + delta;
     input.value = Math.max(0, qty);
 };
 
 window.updateServiceQty = function(id, qty) {
-    document.getElementById(`service-qty-${id}`).value = Math.max(0, parseInt(qty) || 0);
+    const input = document.getElementById(`service-qty-${id}`);
+    if (!input) return;
+    input.value = Math.max(0, parseInt(qty) || 0);
 };
 
 window.bookService = function(serviceId) {
     const service = window.services?.find(s => s.id === serviceId); // services defined in services.html
     const qtyInput = document.getElementById(`service-qty-${serviceId}`);
-    const qty = parseInt(qtyInput.value);
+    const qty = parseInt(qtyInput?.value) || 0;
     
     if (qty > 0 && service) {
         const existing = serviceCart.find(item => item.id === serviceId);
@@ -200,16 +273,41 @@ window.bookService = function(serviceId) {
         } else {
             serviceCart.push({ ...service, quantity: qty });
         }
-        localStorage.setItem('skinClinicServices', JSON.stringify(serviceCart));
+        saveCarts();
         qtyInput.value = 0;
-        event.target.textContent = 'Booked!';
-        event.target.classList.add('booked');
-        setTimeout(() => {
-            event.target.textContent = 'Book Service';
-            event.target.classList.remove('booked');
-        }, 1500);
+        const btn = event?.target;
+        if (btn) {
+            btn.textContent = 'Booked!';
+            btn.classList.add('booked');
+            setTimeout(() => {
+                btn.textContent = 'Book Service';
+                btn.classList.remove('booked');
+            }, 1500);
+        }
         alert(`${qty} sessions booked!`);
+        updateCombinedCart();
     }
+};
+
+window.addToCart = function(id) {
+    const product = window.products?.find(p => p.id === id);
+    const qtyInput = document.getElementById(`qty-${id}`);
+    const qty = parseInt(qtyInput?.value) || 0;
+    if (qty > 0 && product) {
+        const existing = productCart.find(item => item.id === id);
+        if (existing) existing.quantity += qty;
+        else productCart.push({ ...product, quantity: qty });
+        saveCarts();
+        qtyInput.value = 0;
+        const btn = event?.target;
+        if (btn) {
+            const original = btn.textContent;
+            btn.textContent = 'Added! ✓';
+            btn.classList.add('added');
+            setTimeout(() => { btn.textContent = original; btn.classList.remove('added'); }, 1500);
+        }
+        updateCombinedCart();
+    } else alert('Please select quantity!');
 };
 
 // Export for global access
