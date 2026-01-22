@@ -22,7 +22,7 @@
     </nav>
 
     <!-- Main Content -->
-    <section style="padding:140px 5% 80px;max-width:600px;margin:0 auto;">
+    <section style="padding:140px 5% 80px;max-width:900px;margin:0 auto;">
         <h2 style="text-align:center;font-size:2.5rem;margin-bottom:3rem;color:#2c3e50;">Share Your Experience</h2>
         
         <!-- VALIDATED FEEDBACK FORM -->
@@ -63,12 +63,111 @@
                 <span id="feedbackError" class="error" style="color:#e74c3c;font-size:0.85rem;margin-top:4px;display:block;"></span>
             </div>
             
-            <button type="submit" style="background:#e91e63;color:white;border:none;padding:15px 40px;border-radius:50px;font-size:1.1rem;cursor:pointer;display:block;margin:0 auto;width:100%;">Submit & Download CSV</button>
+            <button type="submit" style="background:#e91e63;color:white;border:none;padding:15px 40px;border-radius:50px;font-size:1.1rem;cursor:pointer;display:block;margin:0 auto;width:100%;">Submit</button>
         </form>
+
+        <!-- Saved feedbacks and CSV export -->
+        <div id="savedFeedbacks" style="margin-top:2rem;background:rgba(255,255,255,0.9);padding:1.25rem;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.08);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+                <h3 style="margin:0;font-size:1.25rem;color:#2c3e50;">Saved Feedbacks</h3>
+                <div>
+                    <button id="downloadAllBtn" style="background:#2c3e50;color:white;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;margin-right:8px;">Download all CSV</button>
+                    <button id="clearAllBtn" style="background:#e74c3c;color:white;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;">Clear all</button>
+                </div>
+            </div>
+            <div style="overflow:auto;max-height:360px;">
+                <table id="feedbackTable" style="width:100%;border-collapse:collapse;font-size:0.95rem;">
+                    <thead style="position:sticky;top:0;background:#fff;">
+                        <tr>
+                            <th style="text-align:left;padding:8px;border-bottom:1px solid #ecf0f1;">Name</th>
+                            <th style="text-align:left;padding:8px;border-bottom:1px solid #ecf0f1;">Mobile</th>
+                            <th style="text-align:left;padding:8px;border-bottom:1px solid #ecf0f1;">Service</th>
+                            <th style="text-align:left;padding:8px;border-bottom:1px solid #ecf0f1;">Rating</th>
+                            <th style="text-align:left;padding:8px;border-bottom:1px solid #ecf0f1;">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="feedbackTbody">
+                        <!-- populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </section>
 
     <!-- COMPLETE VALIDATION + CSV SCRIPT -->
     <script>
+        // Helper: render saved feedbacks from localStorage into the table
+        function renderFeedbacks() {
+            const tbody = document.getElementById('feedbackTbody');
+            tbody.innerHTML = '';
+            const feedbacks = JSON.parse(localStorage.getItem('skinClinicFeedbacks')) || [];
+            if (feedbacks.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td colspan="5" style="padding:12px;color:#7f8c8d;">No feedbacks saved yet.</td>';
+                tbody.appendChild(tr);
+                return;
+            }
+            feedbacks.slice().reverse().forEach(fb => { // show latest first
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="padding:8px;border-bottom:1px solid #f0f0f0;">${escapeHtml(fb.name)}</td>
+                    <td style="padding:8px;border-bottom:1px solid #f0f0f0;">${escapeHtml(fb.mobile)}</td>
+                    <td style="padding:8px;border-bottom:1px solid #f0f0f0;">${escapeHtml(fb.service)}</td>
+                    <td style="padding:8px;border-bottom:1px solid #f0f0f0;">${escapeHtml(String(fb.rating))}</td>
+                    <td style="padding:8px;border-bottom:1px solid #f0f0f0;">${escapeHtml(fb.date)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Escape to avoid injecting HTML
+        function escapeHtml(str) {
+            if (!str && str !== 0) return '';
+            return String(str)
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#39;');
+        }
+
+        // Download all saved feedbacks as CSV
+        function downloadAllFeedbacksCSV() {
+            const feedbacks = JSON.parse(localStorage.getItem('skinClinicFeedbacks')) || [];
+            if (feedbacks.length === 0) {
+                alert('No feedbacks to download.');
+                return;
+            }
+            const headers = ['Name','Mobile','Email','Service','Rating','Feedback','Date'];
+            const rows = feedbacks.map(fb => [
+                `"${fb.name.replace(/"/g,'""')}"`,
+                fb.mobile,
+                fb.email ? `"${fb.email.replace(/"/g,'""')}"` : '',
+                `"${fb.service.replace(/"/g,'""')}"`,
+                fb.rating,
+                `"${fb.feedback.replace(/"/g,'""')}"`,
+                `"${fb.date.replace(/"/g,'""')}"`
+            ].join(','));
+            const csvContent = [headers.join(','), ...rows].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `GlowSkin_Feedbacks_All_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Clear all saved feedbacks
+        function clearAllFeedbacks() {
+            if (!confirm('Clear all saved feedbacks? This cannot be undone.')) return;
+            localStorage.removeItem('skinClinicFeedbacks');
+            renderFeedbacks();
+        }
+
+        document.getElementById('downloadAllBtn').addEventListener('click', downloadAllFeedbacksCSV);
+        document.getElementById('clearAllBtn').addEventListener('click', clearAllFeedbacks);
+
         document.getElementById('feedbackForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -118,7 +217,7 @@
                 isValid = false;
             }
             
-            // If all valid, save & CSV export
+            // If all valid, save & update UI
             if (isValid) {
                 const feedbackData = {
                     name: name,
@@ -130,40 +229,29 @@
                     date: new Date().toLocaleString('en-IN')
                 };
                 
-                // Save to LocalStorage
+                // Save to LocalStorage (append)
                 let feedbacks = JSON.parse(localStorage.getItem('skinClinicFeedbacks')) || [];
                 feedbacks.push(feedbackData);
                 localStorage.setItem('skinClinicFeedbacks', JSON.stringify(feedbacks));
                 
-                // CSV Export
-                const csvHeaders = ['Name','Mobile','Email','Service','Rating','Feedback','Date'];
-                const csvRow = [
-                    `"${name.replace(/"/g,'""')}"`,
-                    mobile,
-                    email || '',
-                    `"${service.replace(/"/g,'""')}"`,
-                    rating,
-                    `"${feedback.replace(/"/g,'""')}"`,
-                    feedbackData.date
-                ];
+                // Update displayed list
+                renderFeedbacks();
                 
-                const csvContent = [csvHeaders.join(','), csvRow.join(',')].join('\n');
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `GlowSkin_Feedback_${new Date().toISOString().split('T')[0]}.csv`;
-                a.click();
-                URL.revokeObjectURL(url);
-                
-                alert('✅ Thank you! Feedback saved & CSV downloaded.');
+                // Optionally download all feedbacks as CSV (appends logically to stored list)
+                // You can comment the next line out if you don't want automatic download on submit
+                // downloadAllFeedbacksCSV();
+
+                alert('✅ Thank you! Feedback saved. You can download all feedbacks using "Download all CSV".');
                 this.reset();
             }
         });
+
+        // Render on load
+        window.addEventListener('DOMContentLoaded', renderFeedbacks);
     </script>
 </body>
 </html>
 
-
     
             
+
