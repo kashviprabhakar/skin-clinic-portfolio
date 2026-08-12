@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlowSkin Clinic - Home</title>
+    <style>
+        /* INTERNAL CSS - HOME PAGE ONLY */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #e91e63; --secondary: #f8bbd9; --dark: #2c3e50; --white: #ffffff; --shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: var(--dark); }
+        
+        nav { background: var(--white); padding: 1rem 5%; position: fixed; width: 100%; top: 0; z-index: 1000; box-shadow: var(--shadow); }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.8rem; font-weight: bold; color: var(--primary); }
+        .nav-links { display: flex; list-style: none; gap: 2rem; }
+        .nav-links a { text-decoration: none; color: var(--dark); font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+        
+        .hero { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--white); padding: 140px 5% 80px; text-align: center; }
+        .hero h1 { font-size: clamp(2.5rem, 5vw, 4rem); margin-bottom: 1rem; animation: fadeInUp 1s ease; }
+        .hero p { font-size: 1.3rem; margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto; animation: fadeInUp 1s 0.2s both; }
+        .cta-btn { display: inline-block; background: var(--white); color: var(--primary); padding: 15px 40px; border-radius: 50px; text-decoration: none; font-weight: bold; animation: fadeInUp 1s 0.4s both; transition: all 0.3s; }
+        .cta-btn:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+        
+        .features { padding: 80px 5%; max-width: 1200px; margin: 0 auto; text-align: center; }
+        .features h2 { font-size: 2.5rem; margin-bottom: 3rem; color: var(--dark); }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .feature-card { padding: 2rem; background: var(--white); border-radius: 20px; box-shadow: var(--shadow); transition: transform 0.3s; }
+        .feature-card:hover { transform: translateY(-10px); }
+        .feature-icon { font-size: 3rem; margin-bottom: 1rem; }
+        
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) { .nav-links { display: none; } /* Mobile styles */ }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">GlowSkin Clinic</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Transform Your Skin</h1>
+        <p>Experience premium skin care treatments and products designed for radiant, healthy skin.</p>
+        <a href="services.html" class="cta-btn">Explore Services</a>
+    </section>
+
+    <section class="features">
+        <h2>Why Choose Us?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3>Expert Dermatologists</h3>
+                <p>Board-certified specialists with 10+ years experience.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔬</div>
+                <h3>Advanced Technology</h3>
+                <p>Latest laser and AI skin analysis equipment.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⭐</div>
+                <h3>5-Star Results</h3>
+                <p>98% customer satisfaction rate.</p>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+
+   
+
+  
