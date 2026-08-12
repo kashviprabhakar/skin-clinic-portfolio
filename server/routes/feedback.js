@@ -1,11 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const Feedback = require('../models/Feedback');
+const fetch = require('node-fetch');
 
 // Create feedback
 router.post('/', async (req, res, next) => {
   try {
-    const { name, mobile, email, service, rating, feedback } = req.body;
+    const { name, mobile, email, service, rating, feedback, recaptcha } = req.body;
+
+    // Verify reCAPTCHA token
+    const secret = process.env.RECAPTCHA_SECRET;
+    if (!secret) {
+      console.warn('RECAPTCHA_SECRET is not set in environment — skipping verification');
+    } else {
+      if (!recaptcha) return res.status(400).json({ error: 'reCAPTCHA token is missing' });
+      const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${encodeURIComponent(secret)}&response=${encodeURIComponent(recaptcha)}`;
+      const vRes = await fetch(verificationUrl, { method: 'POST' });
+      const vData = await vRes.json();
+      if (!vData.success) {
+        return res.status(400).json({ error: 'reCAPTCHA verification failed', details: vData });
+      }
+      // If using reCAPTCHA v3 you may want to check vData.score here
+    }
+
     // Basic validation
     if (!name || typeof name !== 'string' || name.trim().length < 2) {
       return res.status(400).json({ error: 'Name is required and must be at least 2 characters' });
