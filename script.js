@@ -220,28 +220,7 @@ function setupFeedbackForm() {
         feedbacks.push(feedbackData);
         localStorage.setItem('skinClinicFeedbacks', JSON.stringify(feedbacks));
 
-        // CSV Export (Excel/Notepad ready)
-        const csvHeaders = ['Name', 'Mobile', 'Email', 'Service', 'Rating', 'Feedback', 'Date'];
-        const csvRow = [
-            feedbackData.name,
-            feedbackData.mobile,
-            feedbackData.email,
-            feedbackData.service,
-            feedbackData.rating,
-            `"${feedbackData.feedback.replace(/"/g, '""')}"`,
-            feedbackData.date
-        ];
-
-        const csvContent = `${csvHeaders.join(',')}\n${csvRow.join(',')}`;
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `feedback_${Date.now()}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
-
+        // CSV/Excel download removed - we only store feedbacks in localStorage now
         feedbackForm.reset();
         alert('Thank you for your feedback!');
     });

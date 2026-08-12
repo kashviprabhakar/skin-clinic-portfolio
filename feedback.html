@@ -63,15 +63,14 @@
                 <span id="feedbackError" class="error" style="color:#e74c3c;font-size:0.85rem;margin-top:4px;display:block;"></span>
             </div>
             
-            <button type="submit" style="background:#e91e63;color:white;border:none;padding:15px 40px;border-radius:50px;font-size:1.1rem;cursor:pointer;display:block;margin:0 auto;width:100%;">Submit</button>
+            <button type="submit" style="background:#e91e63;color:white;border:none;padding:15px 40px;border-radius:50px;font-size:1.1rem;cursor:pointer;display:block;margin:0 auto;width:100%;">Submit Feedback</button>
         </form>
 
-        <!-- Saved feedbacks and CSV export -->
+        <!-- Saved feedbacks (CSV export removed) -->
         <div id="savedFeedbacks" style="margin-top:2rem;background:rgba(255,255,255,0.9);padding:1.25rem;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.08);">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
                 <h3 style="margin:0;font-size:1.25rem;color:#2c3e50;">Saved Feedbacks</h3>
                 <div>
-                    <button id="downloadAllBtn" style="background:#2c3e50;color:white;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;margin-right:8px;">Download all CSV</button>
                     <button id="clearAllBtn" style="background:#e74c3c;color:white;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;">Clear all</button>
                 </div>
             </div>
@@ -94,7 +93,7 @@
         </div>
     </section>
 
-    <!-- COMPLETE VALIDATION + CSV SCRIPT -->
+    <!-- COMPLETE VALIDATION (CSV export removed) -->
     <script>
         // Helper: render saved feedbacks from localStorage into the table
         function renderFeedbacks() {
@@ -131,33 +130,6 @@
                 .replaceAll("'", '&#39;');
         }
 
-        // Download all saved feedbacks as CSV
-        function downloadAllFeedbacksCSV() {
-            const feedbacks = JSON.parse(localStorage.getItem('skinClinicFeedbacks')) || [];
-            if (feedbacks.length === 0) {
-                alert('No feedbacks to download.');
-                return;
-            }
-            const headers = ['Name','Mobile','Email','Service','Rating','Feedback','Date'];
-            const rows = feedbacks.map(fb => [
-                `"${fb.name.replace(/"/g,'""')}"`,
-                fb.mobile,
-                fb.email ? `"${fb.email.replace(/"/g,'""')}"` : '',
-                `"${fb.service.replace(/"/g,'""')}"`,
-                fb.rating,
-                `"${fb.feedback.replace(/"/g,'""')}"`,
-                `"${fb.date.replace(/"/g,'""')}"`
-            ].join(','));
-            const csvContent = [headers.join(','), ...rows].join('\n');
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `GlowSkin_Feedbacks_All_${new Date().toISOString().split('T')[0]}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
         // Clear all saved feedbacks
         function clearAllFeedbacks() {
             if (!confirm('Clear all saved feedbacks? This cannot be undone.')) return;
@@ -165,7 +137,6 @@
             renderFeedbacks();
         }
 
-        document.getElementById('downloadAllBtn').addEventListener('click', downloadAllFeedbacksCSV);
         document.getElementById('clearAllBtn').addEventListener('click', clearAllFeedbacks);
 
         document.getElementById('feedbackForm').addEventListener('submit', function(e) {
@@ -236,12 +207,8 @@
                 
                 // Update displayed list
                 renderFeedbacks();
-                
-                // Optionally download all feedbacks as CSV (appends logically to stored list)
-                // You can comment the next line out if you don't want automatic download on submit
-                // downloadAllFeedbacksCSV();
 
-                alert('✅ Thank you! Feedback saved. You can download all feedbacks using "Download all CSV".');
+                alert('✅ Thank you! Feedback saved.');
                 this.reset();
             }
         });
@@ -251,7 +218,3 @@
     </script>
 </body>
 </html>
-
-    
-            
-
