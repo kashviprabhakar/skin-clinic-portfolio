@@ -38,6 +38,126 @@
             font-weight: bold;
             color: #27ae60;
         }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin: 10px 0;
+            background: #fff;
+        }
+
+        .item-info {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .item-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .item-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .item-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .item-qty {
+            font-size: 14px;
+            color: #777;
+        }
+
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+
+        .qty-btn {
+            background: none;
+            border: none;
+            padding: 8px 10px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #27ae60;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .qty-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .qty-display {
+            padding: 8px 12px;
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .item-price {
+            font-weight: bold;
+            font-size: 16px;
+            color: #27ae60;
+            min-width: 100px;
+            text-align: right;
+            margin-right: 15px;
+        }
+
+        .remove-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .remove-btn:hover {
+            background: #c0392b;
+        }
+
+        @media (max-width: 768px) {
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .item-actions {
+                width: 100%;
+                margin-top: 10px;
+                justify-content: space-between;
+            }
+
+            .item-price {
+                margin-right: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -144,6 +264,40 @@
             return { subtotal, gst, total };
         }
 
+        // Increase item quantity
+        function increaseQuantity(index, isService) {
+            const cart = isService ? serviceCart : productCart;
+            if (cart[index]) {
+                cart[index].quantity = parseNumber(cart[index].quantity) + 1;
+                saveCart();
+                updateCartDisplay();
+            }
+        }
+
+        // Decrease item quantity
+        function decreaseQuantity(index, isService) {
+            const cart = isService ? serviceCart : productCart;
+            if (cart[index] && parseNumber(cart[index].quantity) > 1) {
+                cart[index].quantity = parseNumber(cart[index].quantity) - 1;
+                saveCart();
+                updateCartDisplay();
+            }
+        }
+
+        // Remove item from cart
+        function removeItem(index, isService) {
+            const cart = isService ? serviceCart : productCart;
+            cart.splice(index, 1);
+            saveCart();
+            updateCartDisplay();
+        }
+
+        // Save cart to localStorage
+        function saveCart() {
+            localStorage.setItem('skinClinicCart', JSON.stringify(productCart));
+            localStorage.setItem('skinClinicServices', JSON.stringify(serviceCart));
+        }
+
         // Update Cart Display with Tabs
         function updateCartDisplay() {
             const allItems = [...productCart, ...serviceCart];
@@ -180,18 +334,32 @@
             if (itemsToShow.length === 0) {
                 container.innerHTML = '<p>No items in this category.</p>';
             } else {
-                container.innerHTML = itemsToShow.map(item => `
-                    <div class="cart-item">
-                        <div class="item-info">
-                            <img src="${item.image}" alt="${item.name}" class="item-image">
-                            <div class="item-details">
-                                <div class="item-name">${item.name}</div>
-                                <div class="item-qty">${item.quantity} ${item.id < 10 ? 'sessions' : 'items'}</div>
+                container.innerHTML = itemsToShow.map((item, index) => {
+                    const isService = serviceCart.includes(item);
+                    const itemIndex = isService ? serviceCart.indexOf(item) : productCart.indexOf(item);
+                    const itemTotal = parseNumber(item.price) * parseNumber(item.quantity);
+                    
+                    return `
+                        <div class="cart-item">
+                            <div class="item-info">
+                                <img src="${item.image}" alt="${item.name}" class="item-image">
+                                <div class="item-details">
+                                    <div class="item-name">${item.name}</div>
+                                    <div class="item-qty">₹${parseNumber(item.price).toLocaleString('en-IN')} each</div>
+                                </div>
+                            </div>
+                            <div class="item-actions">
+                                <div class="quantity-control">
+                                    <button class="qty-btn" onclick="decreaseQuantity(${itemIndex}, ${isService})">−</button>
+                                    <div class="qty-display">${parseNumber(item.quantity)}</div>
+                                    <button class="qty-btn" onclick="increaseQuantity(${itemIndex}, ${isService})">+</button>
+                                </div>
+                                <div class="item-price">₹${itemTotal.toLocaleString('en-IN')}</div>
+                                <button class="remove-btn" onclick="removeItem(${itemIndex}, ${isService})">Remove</button>
                             </div>
                         </div>
-                        <div class="item-price">₹${(parseNumber(item.price) * parseNumber(item.quantity)).toLocaleString()}</div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
 
             // Calculate and display totals with GST for the whole cart
