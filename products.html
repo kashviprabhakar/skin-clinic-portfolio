@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - GlowSkin Clinic</title>
+    <link rel="stylesheet" href="external.css">
+    <style>
+        .quantity-controls{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;}
+        .qty-btn{width:40px;height:40px;border:none;background:#f8bbd9;color:#e91e63;border-radius:50%;font-size:1.2rem;cursor:pointer;transition:all .3s;}
+        .qty-btn:hover{background:#e91e63;color:#fff;}
+        .qty-input{width:60px;text-align:center;border:2px solid #ecf0f1;border-radius:10px;padding:8px;}
+        .add-to-cart{width:100%;background:#e91e63;color:#fff;border:none;padding:12px;border-radius:10px;font-size:1rem;cursor:pointer;transition:all .3s;}
+        .add-to-cart:hover{background:#c2185b;}
+        .added{background:#4caf50!important;}
+        .product-price{font-size:1.5rem;font-weight:bold;color:#e91e63;margin-bottom:1rem;}
+        .product-image{width:100%;height:250px;object-fit:cover;}
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">GlowSkin Clinic</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="products-hero">
+        <h1>Shop Our Products</h1>
+        <p>Your premium skincare collection</p>
+    </section>
+
+    <section class="products-section">
+        <div class="products-grid" id="productsGrid"></div>
+    </section>
+
+    <script>
+        const products = [
+            {id:1,name:'Vitamin C Serum',price:1299,image:'vitamin c serum pic.jpeg'},
+            {id:2,name:'Hyaluronic Acid',price:899,image:'hyaluranic acid pic.jpeg'},
+            {id:3,name:'Retinol Cream',price:1599,image:'retinol cream pic.jpeg'},
+            {id:4,name:'Sunscreen SPF 50',price:699,image:'sunscreen spf 50 pic.jpeg'},
+            {id:5,name:'Face Wash',price:499,image:'face wash pic.jpeg'},
+            {id:6,name:'Moisturizer',price:799,image:'moisturiser pic.jpeg'}
+        ];
+
+        document.addEventListener('DOMContentLoaded',function(){
+            const grid=document.getElementById('productsGrid');
+            grid.innerHTML=products.map(p=>`
+                <div class="product-card">
+                    <img src="${p.image}" alt="${p.name}" class="product-image" 
+                         onerror="this.src='https://via.placeholder.com/400x300/e91e63/ffffff?text=${encodeURIComponent(p.name)}'">
+                    <div class="product-info">
+                        <h3>${p.name}</h3>
+                        <div class="product-price">₹${p.price.toLocaleString()}</div>
+                        <div class="quantity-controls">
+                            <button class="qty-btn" onclick="changeQty(${p.id},-1)">-</button>
+                            <input type="number" class="qty-input" id="qty-${p.id}" value="0" min="0" onchange="updateQty(${p.id},this.value)">
+                            <button class="qty-btn" onclick="changeQty(${p.id},1)">+</button>
+                        </div>
+                        <button class="add-to-cart" onclick="addToCart(${p.id})">Add to Cart</button>
+                    </div>
+                </div>
+            `).join('');
+        });
+
+        function changeQty(id,delta){
+            const input=document.getElementById(`qty-${id}`);
+            let qty=parseInt(input.value)+delta;
+            input.value=Math.max(0,qty);
+        }
+        function updateQty(id,qty){
+            document.getElementById(`qty-${id}`).value=Math.max(0,parseInt(qty)||0);
+        }
+        function addToCart(id){
+            const product=products.find(p=>p.id===id);
+            const qtyInput=document.getElementById(`qty-${id}`);
+            const qty=parseInt(qtyInput.value);
+            if(qty>0&&product){
+                let cart=JSON.parse(localStorage.getItem('skinClinicCart'))||[];
+                const existing=cart.find(item=>item.id===id);
+                if(existing)existing.quantity+=qty;
+                else cart.push({...product,quantity:qty});
+                localStorage.setItem('skinClinicCart',JSON.stringify(cart));
+                const btn=event.target;
+                const original=btn.textContent;
+                btn.textContent='Added! ✓';
+                btn.classList.add('added');
+                setTimeout(()=>{btn.textContent=original;btn.classList.remove('added')},1500);
+                qtyInput.value=0;
+            }else alert('Please select quantity!');
+        }
+    </script>
+</body>
+</html>
