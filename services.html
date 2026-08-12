@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services - GlowSkin Clinic</title>
+    <link rel="stylesheet" href="external.css">
+    <style>
+        .service-quantity{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;}
+        .service-qty-btn{width:40px;height:40px;border:none;background:#f8bbd9;color:#e91e63;border-radius:50%;font-size:1.2rem;cursor:pointer;transition:all .3s;}
+        .service-qty-btn:hover{background:#e91e63;color:#fff;}
+        .service-qty-input{width:60px;text-align:center;border:2px solid #ecf0f1;border-radius:10px;padding:8px;}
+        .book-service{width:100%;background:#e91e63;color:#fff;border:none;padding:12px;border-radius:10px;font-size:1rem;cursor:pointer;transition:all .3s;}
+        .book-service:hover{background:#c2185b;}
+        .booked{background:#4caf50!important;}
+        .service-price{font-size:1.5rem;font-weight:bold;color:#e91e63;margin-bottom:1rem;}
+        .service-image{width:100%;height:250px;object-fit:cover;}
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">GlowSkin Clinic</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="services-hero">
+        <h1>Book Our Services</h1>
+        <p>Premium dermatology treatments</p>
+    </section>
+
+    <section class="services-section">
+        <div class="services-grid" id="servicesGrid"></div>
+    </section>
+
+    <script>
+        const services=[
+            {id:1,name:'Acne Treatment',price:2500,image:'acne treatment pic.jpeg'},
+            {id:2,name:'Anti-Aging Therapy',price:4500,image:'anti aging pic.jpeg'},
+            {id:3,name:'HydraFacial',price:1800,image:'hydra facial pic.jpeg'},
+            {id:4,name:'Laser Hair Removal',price:3200,image:'laser hair removal.jpeg'}
+        ];
+
+        document.addEventListener('DOMContentLoaded',function(){
+            const grid=document.getElementById('servicesGrid');
+            grid.innerHTML=services.map(s=>`
+                <div class="service-card">
+                    <img src="${s.image}" alt="${s.name}" class="service-image" 
+                         onerror="this.src='https://via.placeholder.com/400x300/e91e63/ffffff?text=${encodeURIComponent(s.name)}'">
+                    <div>
+                        <h3>${s.name}</h3>
+                        <div class="service-price">₹${s.price.toLocaleString()}/session</div>
+                        <div class="service-quantity">
+                            <button class="service-qty-btn" onclick="changeServiceQty(${s.id},-1)">-</button>
+                            <input type="number" class="service-qty-input" id="service-qty-${s.id}" value="0" min="0" onchange="updateServiceQty(${s.id},this.value)">
+                            <button class="service-qty-btn" onclick="changeServiceQty(${s.id},1)">+</button>
+                        </div>
+                        <button class="book-service" onclick="bookService(${s.id})">Book Service</button>
+                    </div>
+                </div>
+            `).join('');
+        });
+
+        function changeServiceQty(id,delta){
+            const input=document.getElementById(`service-qty-${id}`);
+            let qty=parseInt(input.value)+delta;
+            input.value=Math.max(0,qty);
+        }
+        function updateServiceQty(id,qty){
+            document.getElementById(`service-qty-${id}`).value=Math.max(0,parseInt(qty)||0);
+        }
+        function bookService(id){
+            const service=services.find(s=>s.id===id);
+            const qtyInput=document.getElementById(`service-qty-${id}`);
+            const qty=parseInt(qtyInput.value);
+            if(qty>0&&service){
+                let cart=JSON.parse(localStorage.getItem('skinClinicServices'))||[];
+                const existing=cart.find(item=>item.id===id);
+                if(existing)existing.quantity+=qty;
+                else cart.push({...service,quantity:qty});
+                localStorage.setItem('skinClinicServices',JSON.stringify(cart));
+                const btn=event.target;
+                const original=btn.textContent;
+                btn.textContent='Booked! ✓';
+                btn.classList.add('booked');
+                setTimeout(()=>{btn.textContent=original;btn.classList.remove('booked')},1500);
+                qtyInput.value=0;
+                alert(`${qty} sessions booked!`);
+            }else alert('Please select sessions!');
+        }
+    </script>
+</body>
+</html>
