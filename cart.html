@@ -118,6 +118,14 @@
         let currentTab = 'all';
         const GST_RATE = 0.18; // 18% GST
 
+        // Safe number parser (removes currency symbols/commas)
+        function parseNumber(val) {
+            if (typeof val === 'number') return val;
+            if (!val && val !== 0) return 0;
+            const num = Number(String(val).replace(/[^0-9.-]+/g, ''));
+            return isNaN(num) ? 0 : num;
+        }
+
         // Initialize Cart Display
         function initCart() {
             updateCartDisplay();
@@ -126,9 +134,13 @@
 
         // Calculate totals with GST
         function calculateTotals(items) {
-            const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const gst = subtotal * GST_RATE;
-            const total = subtotal + gst;
+            const subtotal = items.reduce((sum, item) => {
+                const price = parseNumber(item.price);
+                const qty = parseNumber(item.quantity);
+                return sum + price * qty;
+            }, 0);
+            const gst = +(subtotal * GST_RATE);
+            const total = +(subtotal + gst);
             return { subtotal, gst, total };
         }
 
@@ -137,59 +149,77 @@
             const allItems = [...productCart, ...serviceCart];
             const productsOnly = productCart;
             const servicesOnly = serviceCart;
-            
-            const itemsToShow = currentTab === 'products' ? productsOnly : 
+
+            const itemsToShow = currentTab === 'products' ? productsOnly :
                                currentTab === 'services' ? servicesOnly : allItems;
-            
+
             const container = document.getElementById('cartItems');
             const orderSummary = document.getElementById('orderSummary');
             const checkoutSection = document.getElementById('checkoutSection');
             const emptyCart = document.getElementById('emptyCart');
             const countEl = document.querySelector('.tab-btn:first-child');
-            
-            if (itemsToShow.length === 0) {
+
+            // If there are no items in the entire cart, show empty cart view.
+            if (allItems.length === 0) {
                 container.innerHTML = '';
                 orderSummary.style.display = 'none';
                 checkoutSection.style.display = 'none';
                 emptyCart.style.display = 'block';
                 if (countEl) countEl.textContent = `All Items (0)`;
+                // update tab counts to zero
+                document.querySelector('.tab-btn:nth-child(2)').textContent = `Products (0)`;
+                document.querySelector('.tab-btn:nth-child(3)').textContent = `Services (0)`;
                 return;
             }
-            
+
+            // There are items in the cart (maybe not in this tab)
             emptyCart.style.display = 'none';
             orderSummary.style.display = 'block';
             checkoutSection.style.display = 'block';
-            
-            container.innerHTML = itemsToShow.map(item => `
-                <div class="cart-item">
-                    <div class="item-info">
-                        <img src="${item.image}" alt="${item.name}" class="item-image">
-                        <div class="item-details">
-                            <div class="item-name">${item.name}</div>
-                            <div class="item-qty">${item.quantity} ${item.id < 10 ? 'sessions' : 'items'}</div>
-                        </div>
-                    </div>
-                    <div class="item-price">₹${(item.price * item.quantity).toLocaleString()}</div>
-                </div>
-            `).join('');
 
-            // Calculate and display totals with GST
-            const totals = calculateTotals(itemsToShow);
-            document.getElementById('subtotalAmount').textContent = `₹${totals.subtotal.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
-            document.getElementById('gstAmount').textContent = `₹${totals.gst.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
-            document.getElementById('finalTotal').textContent = `₹${totals.total.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
-            
+            if (itemsToShow.length === 0) {
+                container.innerHTML = '<p>No items in this category.</p>';
+            } else {
+                container.innerHTML = itemsToShow.map(item => `
+                    <div class="cart-item">
+                        <div class="item-info">
+                            <img src="${item.image}" alt="${item.name}" class="item-image">
+                            <div class="item-details">
+                                <div class="item-name">${item.name}</div>
+                                <div class="item-qty">${item.quantity} ${item.id < 10 ? 'sessions' : 'items'}</div>
+                            </div>
+                        </div>
+                        <div class="item-price">₹${(parseNumber(item.price) * parseNumber(item.quantity)).toLocaleString()}</div>
+                    </div>
+                `).join('');
+            }
+
+            // Calculate and display totals with GST for the whole cart
+            const totals = calculateTotals(allItems);
+
+            document.getElementById('subtotalAmount').textContent =
+                `₹${totals.subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('gstAmount').textContent =
+                `₹${totals.gst.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('finalTotal').textContent =
+                `₹${totals.total.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
             // Update tab counts
-            document.querySelector('.tab-btn:nth-child(1)').textContent = `All Items (${allItems.reduce((sum,item)=>sum+item.quantity,0)})`;
-            document.querySelector('.tab-btn:nth-child(2)').textContent = `Products (${productCart.reduce((sum,item)=>sum+item.quantity,0)})`;
-            document.querySelector('.tab-btn:nth-child(3)').textContent = `Services (${serviceCart.reduce((sum,item)=>sum+item.quantity,0)})`;
+            document.querySelector('.tab-btn:nth-child(1)').textContent =
+                `All Items (${allItems.reduce((sum, item) => sum + parseNumber(item.quantity), 0)})`;
+            document.querySelector('.tab-btn:nth-child(2)').textContent =
+                `Products (${productCart.reduce((sum, item) => sum + parseNumber(item.quantity), 0)})`;
+            document.querySelector('.tab-btn:nth-child(3)').textContent =
+                `Services (${serviceCart.reduce((sum, item) => sum + parseNumber(item.quantity), 0)})`;
         }
 
         // Tab Switching
         function showTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            // inline onclick handlers usually set `event` as a global in browsers; fall back if undefined:
+            const activeBtn = (typeof event !== 'undefined' && event.target) ? event.target : document.querySelector(`.tab-btn.${tab}`);
+            if (activeBtn) activeBtn.classList.add('active');
             updateCartDisplay();
         }
 
@@ -199,11 +229,11 @@
             if (checkoutForm) {
                 checkoutForm.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    
-                    // Calculate totals
+
+                    // Calculate totals for whole cart
                     const allItems = [...productCart, ...serviceCart];
                     const totals = calculateTotals(allItems);
-                    
+
                     // Get order details
                     const orderData = {
                         name: document.getElementById('customerName').value,
@@ -216,14 +246,14 @@
                         total: totals.total,
                         date: new Date().toLocaleString('en-IN')
                     };
-                    
+
                     // Save order
                     let orders = JSON.parse(localStorage.getItem('skinClinicOrders')) || [];
                     orders.push(orderData);
                     localStorage.setItem('skinClinicOrders', JSON.stringify(orders));
-                    
+
                     alert('✅ Order Confirmed! Cash on Delivery.\nTeam will call you within 24 hours.');
-                    
+
                     // Clear carts
                     productCart = []; serviceCart = [];
                     localStorage.setItem('skinClinicCart', '[]');
