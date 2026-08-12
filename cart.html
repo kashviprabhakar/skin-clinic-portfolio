@@ -127,19 +127,31 @@
             margin-right: 15px;
         }
 
-        .remove-btn {
-            background: #e91e63;
-            color: white;
-            border: none;
+        /* Stronger, more specific rules to ensure the remove button stays the intended pink (#e91e63) */
+        .cart-container .cart-item .remove-btn {
+            background: #e91e63 !important;
+            color: #fff !important;
+            border: none !important;
             padding: 8px 12px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
             transition: background 0.2s;
+            -webkit-appearance: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .remove-btn:hover {
-            background: #c2185b;
+        .cart-container .cart-item .remove-btn:hover {
+            background: #c2185b !important;
+        }
+
+        .cart-container .cart-item .remove-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(233,30,99,0.18);
+        }
+
+        .cart-container .cart-item .remove-btn:active {
+            transform: translateY(1px);
         }
 
         @media (max-width: 768px) {
