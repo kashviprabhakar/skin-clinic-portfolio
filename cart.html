@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Cart - GlowSkin Clinic</title>
+    <link rel="stylesheet" href="external.css">
+    <style>
+        .cart-hero { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--white); padding: 140px 5% 60px; text-align: center; }
+        .cart-hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+
+        .cart-section { padding: 80px 5%; max-width: 1200px; margin: 0 auto; }
+        .cart-grid { display: grid; grid-template-columns: 1fr 320px; gap: 1.5rem; }
+        .cart-list { background: var(--white); padding: 1.5rem; border-radius: 20px; box-shadow: var(--shadow); }
+        .cart-summary { background: var(--white); padding: 1.5rem; border-radius: 20px; box-shadow: var(--shadow); }
+
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--light); }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item-info { flex: 1; }
+        .cart-item-info h4 { color: var(--primary); margin-bottom: 0.5rem; }
+        .cart-item-actions { display: flex; align-items: center; gap: 1rem; }
+
+        .qty-control { display: flex; align-items: center; gap: 0.5rem; }
+        .qty-btn { width: 30px; height: 30px; border: none; background: var(--secondary); color: var(--primary); border-radius: 50%; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+        .qty-btn:hover { background: var(--primary); color: var(--white); }
+        .qty-display { width: 40px; text-align: center; font-weight: 600; }
+
+        .remove-btn { background: #e74c3c; color: var(--white); border: none; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-size: 0.9rem; }
+        .remove-btn:hover { background: #c0392b; }
+
+        .empty-cart { text-align: center; padding: 3rem; color: #666; font-size: 1.1rem; }
+
+        .cart-summary h3 { color: var(--primary); margin-bottom: 1rem; font-size: 1.3rem; }
+        .cart-total { background: var(--light); padding: 1rem; border-radius: 10px; margin-bottom: 1rem; line-height: 1.8; }
+        .cart-total strong { font-size: 1.2rem; color: var(--primary); }
+
+        .checkout-form { display: flex; flex-direction: column; gap: 0.8rem; }
+        .checkout-form input, .checkout-form textarea { padding: 0.8rem; border: 2px solid var(--light); border-radius: 10px; font-family: inherit; font-size: 1rem; transition: border-color 0.3s; }
+        .checkout-form input:focus, .checkout-form textarea:focus { outline: none; border-color: var(--primary); }
+        .checkout-btn { background: var(--primary); color: var(--white); padding: 1rem; border-radius: 10px; border: none; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s; }
+        .checkout-btn:hover { background: #c2185b; transform: translateY(-2px); box-shadow: var(--shadow); }
+        .checkout-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+
+        @media (max-width: 768px) { 
+            .cart-grid { grid-template-columns: 1fr; }
+            .cart-item { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">GlowSkin Clinic</div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="services.html">Services</a></li>
+                <li><a href="products.html">Products</a></li>
+                <li><a href="cart.html">Cart</a></li>
+                <li><a href="feedback.html">Feedback</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="cart-hero">
+        <h1>Your Cart</h1>
+        <p>Review and checkout your items</p>
+    </section>
+
+    <section class="cart-section">
+        <h2 style="margin-bottom: 2rem; color: var(--dark);">Cart (<span id="cartCount">0</span> items)</h2>
+        <div class="cart-grid">
+            <div class="cart-list">
+                <div id="cartItems">
+                    <!-- Cart items injected by script.js -->
+                </div>
+            </div>
+
+            <div class="cart-summary">
+                <h3>Order Summary</h3>
+                <div id="cartTotal" class="cart-total">
+                    Subtotal: ₹<span id="subtotal">0.00</span><br>
+                    GST (18%): ₹<span id="gst">0.00</span><br>
+                    <strong>Total: ₹<span id="total">0.00</span></strong>
+                </div>
+                <hr style="margin: 1rem 0; border: none; border-top: 1px solid var(--light);">
+                <section id="checkout">
+                    <h4 style="color: var(--primary); margin-bottom: 1rem;">Checkout</h4>
+                    <form id="checkoutForm" class="checkout-form">
+                        <input type="text" id="customerName" placeholder="Full name" required />
+                        <input type="tel" id="phone" placeholder="Phone" required />
+                        <textarea id="address" placeholder="Address" rows="3" required></textarea>
+                        <button type="submit" class="checkout-btn" id="checkoutBtn">Place Order (Cash on Delivery)</button>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>
