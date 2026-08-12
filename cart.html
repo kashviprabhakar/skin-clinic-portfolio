@@ -4,39 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart - GlowSkin Clinic</title>
-    <style>
-        /* Inline CSS for Cart - Fixed Display */
-        *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',sans-serif;line-height:1.6;color:#2c3e50;background:#f8f9fa}
-        nav{background:white;padding:1rem 5%;position:fixed;width:100%;top:0;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,0.1)}
-        .nav-container{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
-        .logo{font-size:1.8rem;font-weight:bold;color:#e91e63}
-        .nav-links{display:flex;list-style:none;gap:2rem}
-        .nav-links a{text-decoration:none;color:#2c3e50;font-weight:500}
-        .nav-links a:hover{color:#e91e63}
-        
-        .cart-hero{background:linear-gradient(135deg,#e91e63,#f8bbd9);color:white;padding:140px 5% 60px;text-align:center}
-        .cart-hero h1{font-size:2.5rem;margin-bottom:1rem}
-        
-        .cart-section{padding:80px 5%;max-width:1200px;margin:0 auto}
-        .cart-container{background:white;border-radius:20px;padding:2rem;box-shadow:0 10px 30px rgba(0,0,0,0.1)}
-        .cart-items{max-height:500px;overflow-y:auto;margin-bottom:2rem}
-        .cart-item{display:flex;justify-content:space-between;align-items:center;padding:1.5rem 0;border-bottom:1px solid #ecf0f1}
-        .cart-item:last-child{border-bottom:none}
-        .item-info{display:flex;align-items:center;flex:1}
-        .item-image{width:60px;height:60px;object-fit:cover;border-radius:10px;margin-right:1rem}
-        .item-details{flex:1}
-        .item-name{font-weight:600;margin-bottom:0.25rem}
-        .item-qty{color:#666;font-size:0.9rem}
-        .item-price{font-size:1.5rem;font-weight:bold;color:#e91e63}
-        .cart-total{font-size:1.8rem;font-weight:bold;text-align:right;margin:2rem 0;color:#e91e63}
-        .checkout-btn{display:block;width:100%;background:#4caf50;color:white;border:none;padding:18px;border-radius:12px;font-size:1.2rem;font-weight:bold;cursor:pointer;margin-top:1rem;transition:all 0.3s}
-        .checkout-btn:hover{background:#45a049;transform:translateY(-2px);box-shadow:0 5px 15px rgba(76,175,80,0.4)}
-        .empty-cart{text-align:center;padding:3rem;color:#666;font-size:1.1rem}
-        .cart-tabs{display:flex;gap:1rem;margin-bottom:1rem;border-bottom:2px solid #ecf0f1;padding-bottom:1rem}
-        .tab-btn{padding:0.5rem 1rem;border:none;background:none;cursor:pointer;font-weight:500;color:#666;transition:color 0.3s}
-        .tab-btn.active{color:#e91e63;border-bottom:3px solid #e91e63;font-weight:600}
-        @media(max-width:768px){.cart-item{flex-direction:column;gap:1rem;text-align:center}}
-    </style>
+    <link rel="stylesheet" href="external.css">
 </head>
 <body>
     <nav>
@@ -71,17 +39,17 @@
             <div id="cartTotal" class="cart-total">Total: ₹0</div>
             <div id="checkoutSection" style="display:none;">
                 <form id="checkoutForm">
-                    <div style="margin-bottom:1.5rem;">
-                        <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Full Name</label>
-                        <input type="text" id="customerName" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+                    <div>
+                        <label for="customerName">Full Name</label>
+                        <input type="text" id="customerName" required>
                     </div>
-                    <div style="margin-bottom:1.5rem;">
-                        <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Phone</label>
-                        <input type="tel" id="phone" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;">
+                    <div>
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" required>
                     </div>
-                    <div style="margin-bottom:1.5rem;">
-                        <label style="display:block;margin-bottom:0.5rem;font-weight:500;">Address</label>
-                        <textarea id="address" rows="3" required style="width:100%;padding:12px;border:2px solid #ecf0f1;border-radius:10px;font-size:1rem;"></textarea>
+                    <div>
+                        <label for="address">Address</label>
+                        <textarea id="address" rows="3" required></textarea>
                     </div>
                     <button type="submit" class="checkout-btn" id="checkoutBtn">Confirm COD Order</button>
                 </form>
@@ -89,7 +57,7 @@
             
             <div id="emptyCart" class="empty-cart" style="display:none;">
                 <p>Your cart is empty 😊</p>
-                <a href="products.html" style="color:#e91e63;font-weight:500;">Continue Shopping →</a>
+                <a href="products.html">Continue Shopping →</a>
             </div>
         </div>
     </section>
