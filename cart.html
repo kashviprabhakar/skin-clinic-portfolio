@@ -5,6 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart - GlowSkin Clinic</title>
     <link rel="stylesheet" href="external.css">
+    <style>
+        .order-summary {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            max-width: 500px;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        
+        .summary-row.subtotal {
+            color: #555;
+        }
+        
+        .summary-row.gst {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        .summary-row.final-total {
+            border-top: 2px solid #ddd;
+            padding-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+    </style>
 </head>
 <body>
     <nav>
@@ -36,7 +70,22 @@
 
             <div id="cartItems" class="cart-items"></div>
             
-            <div id="cartTotal" class="cart-total">Total: ₹0</div>
+            <!-- Order Summary with GST -->
+            <div id="orderSummary" class="order-summary" style="display:none;">
+                <div class="summary-row subtotal">
+                    <span>Subtotal:</span>
+                    <span id="subtotalAmount">₹0</span>
+                </div>
+                <div class="summary-row gst">
+                    <span>GST (18%):</span>
+                    <span id="gstAmount">₹0</span>
+                </div>
+                <div class="summary-row final-total">
+                    <span>Total Amount:</span>
+                    <span id="finalTotal">₹0</span>
+                </div>
+            </div>
+            
             <div id="checkoutSection" style="display:none;">
                 <form id="checkoutForm">
                     <div>
@@ -67,11 +116,20 @@
         let productCart = JSON.parse(localStorage.getItem('skinClinicCart')) || [];
         let serviceCart = JSON.parse(localStorage.getItem('skinClinicServices')) || [];
         let currentTab = 'all';
+        const GST_RATE = 0.18; // 18% GST
 
         // Initialize Cart Display
         function initCart() {
             updateCartDisplay();
             setupEventListeners();
+        }
+
+        // Calculate totals with GST
+        function calculateTotals(items) {
+            const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const gst = subtotal * GST_RATE;
+            const total = subtotal + gst;
+            return { subtotal, gst, total };
         }
 
         // Update Cart Display with Tabs
@@ -84,14 +142,14 @@
                                currentTab === 'services' ? servicesOnly : allItems;
             
             const container = document.getElementById('cartItems');
-            const totalEl = document.getElementById('cartTotal');
+            const orderSummary = document.getElementById('orderSummary');
             const checkoutSection = document.getElementById('checkoutSection');
             const emptyCart = document.getElementById('emptyCart');
             const countEl = document.querySelector('.tab-btn:first-child');
             
             if (itemsToShow.length === 0) {
                 container.innerHTML = '';
-                totalEl.textContent = 'Total: ₹0';
+                orderSummary.style.display = 'none';
                 checkoutSection.style.display = 'none';
                 emptyCart.style.display = 'block';
                 if (countEl) countEl.textContent = `All Items (0)`;
@@ -99,6 +157,7 @@
             }
             
             emptyCart.style.display = 'none';
+            orderSummary.style.display = 'block';
             checkoutSection.style.display = 'block';
             
             container.innerHTML = itemsToShow.map(item => `
@@ -114,8 +173,11 @@
                 </div>
             `).join('');
 
-            const totalPrice = itemsToShow.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            totalEl.textContent = `Total: ₹${totalPrice.toLocaleString()}`;
+            // Calculate and display totals with GST
+            const totals = calculateTotals(itemsToShow);
+            document.getElementById('subtotalAmount').textContent = `₹${totals.subtotal.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+            document.getElementById('gstAmount').textContent = `₹${totals.gst.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+            document.getElementById('finalTotal').textContent = `₹${totals.total.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
             
             // Update tab counts
             document.querySelector('.tab-btn:nth-child(1)').textContent = `All Items (${allItems.reduce((sum,item)=>sum+item.quantity,0)})`;
@@ -138,6 +200,10 @@
                 checkoutForm.addEventListener('submit', function(e) {
                     e.preventDefault();
                     
+                    // Calculate totals
+                    const allItems = [...productCart, ...serviceCart];
+                    const totals = calculateTotals(allItems);
+                    
                     // Get order details
                     const orderData = {
                         name: document.getElementById('customerName').value,
@@ -145,7 +211,9 @@
                         address: document.getElementById('address').value,
                         products: productCart,
                         services: serviceCart,
-                        total: productCart.reduce((sum,item)=>sum+(item.price*item.quantity),0) + serviceCart.reduce((sum,item)=>sum+(item.price*item.quantity),0),
+                        subtotal: totals.subtotal,
+                        gst: totals.gst,
+                        total: totals.total,
                         date: new Date().toLocaleString('en-IN')
                     };
                     
