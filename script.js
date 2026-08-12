@@ -34,6 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (feedbackForm) {
         setupFeedbackForm();
+        // If there's a renderFeedbacks function (from inline page script), call it to fetch initial data
+        if (typeof window.renderFeedbacks === 'function') window.renderFeedbacks();
     }
 });
 
@@ -200,29 +202,39 @@ function setupCartEvents() {
     }
 }
 
-// Feedback form setup (existing behavior preserved)
+// Feedback form setup (now uses backend API)
 function setupFeedbackForm() {
-    feedbackForm.addEventListener('submit', function(e) {
+    feedbackForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
         const feedbackData = {
-            name: document.getElementById('fbName').value,
-            mobile: document.getElementById('fbMobile').value,
-            email: document.getElementById('fbEmail')?.value || '',
-            service: document.getElementById('fbService').value,
-            rating: document.getElementById('fbRating').value,
-            feedback: document.getElementById('fbFeedback').value,
-            date: new Date().toLocaleString('en-IN')
+            name: document.getElementById('fbName').value.trim(),
+            mobile: document.getElementById('fbMobile').value.replace(/\D/g, ''),
+            email: document.getElementById('fbEmail')?.value.trim() || '',
+            service: document.getElementById('fbService').value.trim(),
+            rating: parseInt(document.getElementById('fbRating').value),
+            feedback: document.getElementById('fbFeedback').value.trim()
         };
 
-        // Save feedback
-        let feedbacks = JSON.parse(localStorage.getItem('skinClinicFeedbacks')) || [];
-        feedbacks.push(feedbackData);
-        localStorage.setItem('skinClinicFeedbacks', JSON.stringify(feedbacks));
-
-        // CSV/Excel download removed - we only store feedbacks in localStorage now
-        feedbackForm.reset();
-        alert('Thank you for your feedback!');
+        try {
+            const resp = await fetch('/api/feedbacks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(feedbackData)
+            });
+            if (!resp.ok) {
+                const err = await resp.json().catch(() => ({}));
+                alert('Error saving feedback: ' + (err.error || resp.statusText));
+                return;
+            }
+            // Success - if page has renderFeedbacks, call it to refresh list
+            if (typeof window.renderFeedbacks === 'function') window.renderFeedbacks();
+            feedbackForm.reset();
+            alert('Thank you for your feedback!');
+        } catch (err) {
+            console.error(err);
+            alert('Network error: could not save feedback');
+        }
     });
 }
 
