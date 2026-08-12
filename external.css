@@ -42,13 +42,13 @@ nav { background: var(--white); padding: 1rem 5%; position: fixed; width: 100%; 
 
 /* Cart Total and Checkout */
 .cart-total { font-size: 1.8rem; font-weight: bold; text-align: right; margin: 2rem 0; color: var(--primary); }
-.checkout-btn { display: block; width: 100%; background: #4caf50; color: white; border: none; padding: 18px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 1rem; transition: all 0.3s; }
+.checkout-btn { display: block; width: 100%; background: #4caf50; color: white; border: none; padding: 18px; border-radius: 12px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top:[...] }
 .checkout-btn:hover { background: #45a049; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4); }
 
 /* Form Styles */
 #checkoutForm div { margin-bottom: 1.5rem; }
 #checkoutForm label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--dark); }
-#checkoutForm input, #checkoutForm textarea { width: 100%; padding: 12px; border: 2px solid var(--light); border-radius: 10px; font-size: 1rem; font-family: inherit; transition: border-color 0.3s; }
+#checkoutForm input, #checkoutForm textarea { width: 100%; padding: 12px; border: 2px solid var(--light); border-radius: 10px; font-size: 1rem; font-family: inherit; transition: border-color 0.3s;[...] }
 #checkoutForm input:focus, #checkoutForm textarea:focus { outline: none; border-color: var(--primary); }
 
 /* Empty Cart */
@@ -71,3 +71,47 @@ nav { background: var(--white); padding: 1rem 5%; position: fixed; width: 100%; 
     .cart-tabs { flex-wrap: wrap; }
     .tab-btn { font-size: 0.9rem; padding: 0.4rem 0.8rem; }
 }
+
+
+/* Make cart controls clearly visible */
+.cart-container .quantity-control,
+.cart-container .item-actions { display: flex; align-items: center; gap: 0.5rem; }
+
+.cart-container .qty-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: #f1f1f1;
+  color: #27ae60;
+  border: 1px solid #ddd;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cart-container .qty-btn:hover { background: #e9f7ef; }
+
+.cart-container .qty-display {
+  padding: 8px 12px;
+  min-width: 44px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+/* Make remove button obvious */
+.cart-container .remove-btn {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.cart-container .remove-btn:hover { background: #c0392b; }
